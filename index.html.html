@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আল-ইহসান সমাজ সেবা ফাউন্ডেশন</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom fonts for improved Bengali readability and overall design */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
+            background-color: #f0f8ff; /* Light blue background for a fresh look */
+            /* Removed fixed padding from body to allow content to span wider */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+        }
+        h1 {
+            text-align: center;
+            color: #2e8b57; /* Deep green for the title */
+            margin-bottom: 30px;
+            font-size: 2.5rem; /* Larger title on bigger screens */
+            font-weight: 700;
+            padding: 0 10px; /* Small horizontal padding for title on small screens */
+        }
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 3.5rem; /* Even larger on desktop */
+            }
+        }
+        .filter {
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 600px; /* Max width for consistency */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        select {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            width: 100%; /* Full width on smaller screens */
+            max-width: 300px; /* Max width for consistency */
+        }
+        select:focus {
+            outline: none;
+            border-color: #2e8b57;
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border-radius: 12px; /* More rounded corners */
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 15px; /* Increased padding */
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #2e8b57;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        tr:nth-child(even) {
+            background-color: #f7f7f7;
+        }
+        tr:hover {
+            background-color: #e0f8f0;
+            transition: background-color 0.3s ease;
+        }
+        /* Styles for input fields within the table */
+        .date-input, .number-input {
+            width: 100%; /* Make input fill the cell */
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            font-size: 0.9rem;
+            line-height: 1.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            text-align: center; /* Center text in inputs */
+        }
+        .date-input:focus, .number-input:focus {
+            outline: none;
+            border-color: #34D399; /* Green-500 for focus */
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.4);
+        }
+
+        /* Responsive adjustments for table cells on very small screens */
+        @media (max-width: 640px) { /* Tailwind's 'sm' breakpoint */
+            th, td {
+                padding: 8px 6px; /* Further reduce padding on very small screens for compactness */
+                font-size: 0.75rem; /* Even smaller font for better fit */
+            }
+            /* Allow text wrapping for better fit in narrow columns */
+            td {
+                white-space: normal; /* Allow all cells to wrap text */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>আল-ইহসান সমাজ সেবা ফাউন্ডেশন</h1>
+    <div class="w-full max-w-screen-xl mx-auto py-4 px-2 sm:px-4 md:px-6 lg:px-8"> 
+        <div class="filter">
+            <label for="bloodFilter" class="text-lg font-medium text-gray-700">রক্তের গ্রুপ ফিল্টার করুন:</label>
+            <select id="bloodFilter" onchange="filterTable()">
+                <option value="সব">সব</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+            </select>
+        </div>
+        <div class="overflow-x-auto rounded-lg shadow-inner border border-gray-200">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>নাম</th>
+                        <th>বয়স</th>
+                        <th>পিতার নাম</th>
+                        <th>পাড়া</th>
+                        <th>ব্লাড গ্রোপ</th>
+                        <th>মুবাইল</th>
+                        <th>সর্বশেষ রক্তদানের তারিখ</th>
+                        <th>কতবার রক্ত দিয়েছে</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be dynamically loaded here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Data parsed from your provided HTML table rows.
+        // IMPORTANT: If you have updated data in your CSV, please replace this entire string
+        // with the content of your CSV file. Ensure the headers match the new table structure.
+        const csvData = `নাম,বয়স,পিতার নাম,পাড়া,ব্লাড গ্রোপ,মুবাইল
+হেলাল উদ্দিন,30,বাচ্চু মিয়া,মধ্যপাড়া,B+,01754142427
+জুনাইদ,24,আব্দুল মুত্তালিব,আলাইবাড়ি,O+,01759502528
+শাহিন,20,সফর আলি,মাদারবাড়ি,O+,01778868572
+জাকির,20,লাল মিয়া,আলাই পাড়া,O+,01829264036
+জিহাদ,23,চুন্নু মিয়া,চান্দার পাড়া,O+,01306467740
+কাজল,23,মুসা,খাল পাড়া,B+,01770905781
+জায়েদ,19,ইজ্জত আলি,ছাদেক পাড়া,B+,01833970377
+কায়ুম,24,রতন আলি,মাদারবাড়ি,O+,01603200759
+বাইজিদ,20,জাহের ইসলাম,মাদারবাড়ি,O+,01845425872
+জুনাইদ,19,শহিদ মিয়া,মাদার বাড়ি,O-,01780753215
+ইদ্রিস পাঠান,25,জাশু পাঠান,পাঠান পাড়া,O+,01721931606
+ওয়াসিম,24,কুলুমুদ্দিন,বড় বাড়ি,O+,01616201471
+নাইম,19,তাজুল ইসলাম,পশ্চিম পাড়া,O+,01756753725
+ফুরকান,21,মাসুক মিয়া,কাড়ি বাড়ি,B+,01864911032
+শামিম,42,শাহেদ মিয়া,বড় বাড়ি,O+,01336013181
+মিকাইল,25,শাহেদ মিয়া,পুর্ব পাড়া,O+,01822698350
+জুবাইর,26,মিয়া হুসেন,করিম পুর,O+,01306637919
+মিজান,27,নুরুল ইসলাম,লাহের আডি,O+,01849539915
+মাও: আক্তার,42,জনাব আলি,আলাই পাড়া,A+,01724380137
+মাও: আমান উল্লাহ,26,রহমত আলি,পাঠান পাড়া,A+,01600556425
+ইসমাইল,25,হাফিজ মিয়া,পুর্ব পাড়া,B+,01620768102
+নাজমুল হুদা,25,ফরিদ মিয়া,হবি গঞ্জ,A+,01837189777
+মা: মাহmদুল্লাহ,24,মা: রফিকুল্লাহ,নেত্র কোনা,B+,01875623413
+মা: ইকবাল,26,ডা: গফুর,সুহিল পুর,O+,01763841352
+৭৩৩৩৩আতাউর রহমান,21,মাহমুদ,মধ্যপাড়া,O+,0182084117
+মুস্তাকিম,15,হাানিফ মিয়া,বড় বাড়ি,B+,01789429415
+মিজাান,55,শিশু মিয়া,করিিম পুর,O+,01786298732
+আল আমিন,17,ইদ্রিস আলি,পাঠান পাড়া,O+,01838776857
+রেদওয়ান,21,জজ মিয়া,ছাদেক পাড়া,B+,01890029880
+তাকরীম,15,মিজান,মধ্যপাড়া,A+,01731319101
+কায়ুম,18,জামাল,মধ্যপাড়া,B+,01853767457
+মুস্তাকিম,24,মিজাান,করিম পুর,B+,01600665924
+কুদরত আলি,45,গোলাম আলি,করিম পুর,O+,01821194198
+এম দাদুল্লাহ,26,নুরুল ইসলাম,লাাহের পাড়া,O+,01707360970
+শাগর,15,ইমান উদ্দিন,মধ্যপাড়া,B+,01317952248
+মাসুক মিয়া,26,দুলাল মিয়া,পুর্ব পাড়া,B+,01323458542
+ছাদির মিয়া,28,জাহের আলি,পশ্চিম পাড়া,AB+,01783553882
+আল আমিন,24,আঃ মান্নাহ,মাদার বাড়ি,AB+,01324335951
+তাাহাদ,29,শিশুু মিয়া,করিম পুর,B+,01624278746
+জহিরুল ইসলাম,17,লাল মিয়া,শিমুল কান্দি,O+,01825596259
+শাহিীন আলম,23,আয়েত আলি,খালের পাড়া,A-,01569121534
+মোঃ সুলাই মান,20,সিরাজুল ইসলাম,দক্ষিন পাড়া,A+,01576429899
+তারিকুল ইসলাম,20,নুরুল ইসলাম,মধ্যপাড়া,B+,01606026302
+মামুন,21,আজিজুল ইসলাম,মধ্যপাড়া,A+,01607963806
+শামছু,29,মুসকু মিয়া,ডাঃ সাদেক পাড়া,O+,01778908116
+তাবারক,26,মোঃ আলি,মোল্লা বাড়ি,O+,01838471540
+জুসু মিয়া,49,সিুরুত আলি,পাঠান পাড়া,O+,0173213597
+মাওঃ কামাল উদ্দিন,25,সুমুজ আলি,মাদার বাড়ি,AB+,01714356857
+৪১১১আবু বক্কর,21,মুহাম্মদ আলি,করিমপুর,B+,01602703676
+মিন্টু মিয়া,21,ইউসুফ মিয়া,মধ্যপাড়া,O+,01334413215
+দেলোয়ার,21,মহিউদ্দিন,দক্ষিন পাড়া,O+,01782609997
+ইবরাহীম,20,আজগর আলি,পুর্ব পাড়া,A+,016022535065
+ইসমত আলি,38,nan,করিমপুর,O+,01749359267
+লোকমান,19,বিল্লাল,পাঠান পাড়া,A+,01706324125
+আশিকুর,18,অহিদ মিয়া,করিমপুর,AB+,01302707533
+তোতা মিয়া,36,অন্নর পাঠান,পাঠান পাড়া,O+,01706324125
+কখন মিয়া,40,তোতা মিয়া,মোল্লাবাড়ি,A+,01720230382
+শামিম,25,জরু মিয়া,কলিগছ,A+,01329975608
+রাকিব,25,আলালুদ্দিন,আলাই পাড়া,A+,01828932933
+জসিম,19,সাত্তার মিয়া,মাধুর পাড়া,O+,01328430073
+আব্দুল কালাম,30,সাজু মিয়া,বড় বাড়ি,O+,nan
+সোলাইমান,17,রেনু মিয়া,মধ্যপাড়া,O+,01300065368
+পারভেজ,17,উলি উল্লাহ,মোল্লাবাড়ি,O+,01871561984
+সাগর,19,জিয়াউর,ছাদেক পাড়া,O+,01619981401
+নাইম,17,অহিদ মিয়া,মধ্য পাড়া,B+,01760166405
+কাজী মনির,17,আব্দুল হক,মোল্লা বাড়ি,O+,01820141612
+সাব্বির,26,কবির আহ:,করিমপুর,A+,01725976230
+কাজল,29,মুহিউদ্দিন,মাধুর পাড়া,O+,01747533470
+জালাল উদ্দিন,40,খেলু মিয়া,আলাই পাড়া,O+,01777012965
+ছোয়ার মিয়া,37,রাম পাঠান,পাঠান পাড়া,O+,01733486052
+রেনু মিয়া,37,ফিরু মিয়া,কাশেম পুর,O+,01750773936
+মুস্তাকিম,24,নজরুল আলি,ছাদেক পাড়া,O+,01875324742
+মুনির হুসাইন,17,অজগর আলি,মাধুর পাড়া,B+,01875081826
+মারফত আলি,24,জারু মিয়া,মাধুর পাড়া,B+,01837200076
+নজরুল হুসাইন,22,শাহ আলম,চাত্তের পাড়া,B+,01724187764
+কাওছার,20,ফারুক মিয়া,করিমপুর,O+,01893315215
+শওকত আলি,40,কালি গছ,করিমপুর,AB+,01739309295
+আশিকুর,22,আব্দুল মিয়া,আলাই পাড়া,B+,01791442864
+আ: জলিল,31,আরিজ মিয়া,পুর্ব পাড়া,O+,01898762444
+দানিছ মিয়া,20,গোলাম রসুল,করিমপুর,O+,01312352641
+আয়েতুল্লাহ,19,ছায়েদ মিয়া,পুর্ব পাড়া,O+,01897463149
+শামিম,19,উসমান আলী,পুর্ব পাড়া,A-,01753790036
+তানভির,19,গোলাপ মিয়া,করিম পুর,A+,01333526924
+সিয়াম,18,আ: আওয়াল,করিম পুর,A+,01751327380
+ছফি উল্লাহ,28,মা:লিয়াকত আলি,আলাই পাড়া,B+,01619702514
+শফিকুল,26,আজিজ মিয়া,পুর্ব পাড়া,B-,01602893211
+মা:লোকমান,27,রাইহান উদ্দিন,ব্রাম্মন গাও,O+,01729535760
+আ: কাইয়ুম,23,অহিদ মিয়া,পুর্ব পাড়া,B+,01326423961
+কাওছার,18,ইমানুদ্দিন,বড় বাড়ি,O+,01853750107
+আ: হাকিম,18,ইদ্রিস মিয়া,কাশেম পুর,A+,01749204272
+উজ্জ্বল,17,আক্কাস আলি,মোল্লা বাড়ি,O+,0176448731
+এরশাদ মিয়া,21,দুলাল মিয়া,পুর্ব পাড়া,O+,01307228622
+আমির,17,উদু মিয়া,পুর্ব পাড়া,O+,01828106561
+আ: বাছির,17,জয়নাল মিয়া,দক্ষিন পাড়া,O+,01622236435
+রিফাত,17,আলেক পাঠান,দক্ষিন পাড়া,B+,01622236435
+মো: ফয়সাল,21,আব্দুর রহিম,মধ্য পাড়া,O+,01781058371
+মো: শাহাদাত,16,শপন আলি,মাদার বাড়ি,O+,01811523307
+তানভির আহমেদ,17,ওলিউর রহমান,পশ্চিম পাড়া,O+,01864093352
+মো: হাকিম,18,আবুল কালাম,মহিসবের,O+,0178572302
+আবুল কালাম,30,শাহাদাত,করিম পুর,O+,01746730539
+তানজিমুল ইসলাম,18,হা: তাজুল ইসলাম,পুর্ব পাড়া,A+,01832429994
+মো: ফরহাদ,18,হিবা মিয়া,পশ্চিম পাড়া,O+,01308038948
+শাহাদাত আহমেদ,16,সুহেল মিয়া,মহিস বের,O+,01711016939
+ইদ্রিস পাঠান,65,আব্দুর রশিদ,করিম পুর,B+,01734337554
+মো: হাকিম,18,রুহুল আমিন,মহিসবের,O+,01709130302
+জিন্নত আলি,60,আব্দুর রশিদ,করিম পুর,O+,nan
+মো: ফাহুম,18,মো: রতন আলি,মাদার বাড়ি,O+,01581431191
+শেখ সাদির,15,জাহের ইসলাম,পুর্ব পাড়া,O+,01703866081
+মো: শফিকুল,22,মাহমুদ আলি,মোল্লা বাড়ি,O+,01708931214
+মো: সোহেল রানা,19,ধনু মিয়া,মোল্লা বাড়ি,O+,01606015396
+হেদায়েত উল্লাহ,18,কাদির,পশ্চিম পাড়া,O+,01864093352
+মো: ইকরাম,16,আসরাফুল,মহিসবের,B-,01779718180
+মো: হালিম,24,আব্দুল কারিম,পশ্চিম পাড়া,B+,01778879562
+মো: রাহাদ,17,জলিল,বড় বাড়ি,B+,01737517565
+কাজি জিল্লুর রহমান,21,শাহ নেওয়াজ,মোল্লা বাড়ি,O+,01322016605
+মো: জাবেদ,21,আজিজুল হক,মধ্য পাড়া,A+,01607963806
+মো: ফরহাদ,15,ফারুক মিয়া,বড় বাড়ি,B+,01759097706
+মনির হুসেন,32,মৃত লায়েস মিয়া,মাদার বাড়ি,B+,01724381927
+আরিফুল ইসলাম,26,নুরিদ্দিন,মধ্য পাড়া,O+,01837077347
+হুসাইন,22,মাহবুবল্লাহ,আলাই পাড়া,B+,01602711322
+হা: শাকিল,24,নাবালক,খাল পাড়া,B+,01603235477
+হাফেজ সাইফুল্লাহ,35,মৃত জনব আলি,পশ্চিম পাড়া,O+,01724630305
+শাহীন মিয়া,19,আলাল উদ্দিন,করিম পুর,A+,01331420532
+শাফাতুল ইসলাম,15,কুদরত আলি,চান্দার পাড়া,O+,01758576277
+ইমরান,24,নায়েবুল্লাহ,আলাই বাড়ি,B+,01602215530
+আরিজু মিয়া,55,মজু মিয়া,করিম পুর,O+,nan
+ইমরান,16,খেুয়াজ মিয়,মহিস বেের,O+,0180801140
+ইমন,18,নায়েব আলি,আলাই পাড়া,O-,01869219343
+শাহজুল,18,আল ফাজ,পুর্ব পাড়া,O+,0156915486
+ইসমাইল,18,জামাল ভুইয়া,মহিস বের,O+,0177549013
+মুক্তাদির,15,শাহেদ আলি,মাধুুর পাড়া,O+,01897476599
+জিন্ন্ত আলি,60,nan,করিম পুর,O+,nan
+আশকুল,16,কুদ্দুস আলি,মহিস বের,AB+,01752317075
+নাইম,18,আক্কাস,পুর্ব পাড়া,O+,01737765920
+হেদা্যেতুল্লাহ,15,লাল মিয় আ,মহিস বের,B-,01840103158
+মু খ লেস,18,ইসলাম উদ্দিন,মোল্লা বাড়ি,O+,01851178892
+সাই দি,18,ফরিদ মোল্লাহ,দক্ষিন পাড়া,A+,01840568564
+সোহেল,25,মহন পাঠান,পাঠান পাড়া,A+,01336652825
+মেহেদি,18,মুস্তাক,মধ্য পাড়া,A+,01569180923
+হাফেেজ জুন্নুন,25,আঃ কাদের,মাধুর পাড়া,B-,01714855978
+হাফেজ নুরুল হক,30,nan,মাধুর পাড়া,O+,nan
+ইমদাদুল,26,আজগর আলি,ছাদেক পাড়া,A+,01797385575
+সজিব,20,শহিদুল্লাহ,আলাই পাড়া,B+,01604330116
+শহিদুল ইসলাম,23,সাবিদ আলি,কড়িম পুর,B+,01723301449
+দেলোয়ার,15,ফায়েজ আলি,nan,AB+,01868846308
+সুমন,19,সাানু মিয়,পুর্ব পাড়া,O+,01726311590
+আঃ রাজ্জাক,20,আঃ বাছির,পুর্ব পাড়া,B+,01703985670
+সাব্বি্র,18,সিরাজ মিয়া,পুর্ব পাড়া,O+,0133221515
+নুরুল আলম,27,শহিদুল্লাহ,আলাই পাড়া,B+,01754749177
+`;
+
+        let allDonors = []; // Array to store parsed donor data
+
+        /**
+         * Parses the CSV string into an array of objects.
+         * Assumes the first line is the header.
+         * Adds 'সর্বশেষ রক্তদানের তারিখ' and 'কতবার রক্ত দিয়েছে' with default values if not present.
+         * @param {string} csv - The CSV data as a string.
+         * @returns {Array<Object>} An array of donor objects.
+         */
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            if (lines.length === 0) return [];
+
+            const headers = lines[0].split(',').map(header => header.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(value => value.trim());
+                // Handle cases where a row might have fewer columns if the last columns are empty.
+                // It's safer to ensure values array is at least as long as headers,
+                // but if missing data points at the end, they will just be undefined.
+                // For this scenario, we can just proceed and let || '' handle it.
+                // if (values.length !== headers.length) {
+                //     console.warn(`Skipping malformed row: ${lines[i]} - column count mismatch.`);
+                //     continue;
+                // }
+                let donor = {};
+                headers.forEach((header, index) => {
+                    donor[header] = values[index];
+                });
+
+                // Add default values for new columns if they don't exist in the parsed data
+                if (!donor['সর্বশেষ রক্তদানের তারিখ']) {
+                    donor['সর্বশেষ রক্তদানের তারিখ'] = ''; // Empty string for no date selected
+                }
+                if (!donor['কতবার রক্ত দিয়েছে']) {
+                    donor['কতবার রক্ত দিয়েছে'] = 0; // Default to 0 donations
+                }
+                data.push(donor);
+            }
+            return data;
+        }
+
+        /**
+         * Renders the donor table with filtered data.
+         * @param {Array<Object>} donors - The array of donor objects to display.
+         */
+        function renderTable(donors) {
+            const tableBody = document.querySelector('#dataTable tbody'); // Select the tbody specifically
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (donors.length === 0) {
+                // Update colspan to match the new total number of columns (8)
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-gray-500">কোনো তথ্য পাওয়া যায়নি।</td></tr>`;
+                return;
+            }
+
+            donors.forEach((donor, index) => {
+                const row = document.createElement('tr');
+                
+                // Construct cells based on the full set of headers
+                // Note: The order of cells MUST match the order of <th> in the table header.
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">${donor['নাম'] || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${donor['বয়স'] || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${donor['পিতার নাম'] || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${donor['পাড়া'] || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${donor['ব্লাড গ্রোপ'] || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${donor['মুবাইল'] || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        <input type="date" 
+                               value="${donor['সর্বশেষ রক্তদানের তারিখ'] || ''}" 
+                               class="date-input"
+                               data-donor-index="${index}" 
+                               onchange="updateDate(this)">
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        <input type="number" 
+                               value="${donor['কতবার রক্ত দিয়েছে'] || 0}" 
+                               min="0" 
+                               class="number-input"
+                               data-donor-index="${index}" 
+                               onchange="updateDonationCount(this)">
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        /**
+         * Handles the change event for the date input fields.
+         * Updates the date in the `allDonors` array.
+         * @param {HTMLInputElement} inputElement - The date input element that triggered the change.
+         */
+        function updateDate(inputElement) {
+            const index = parseInt(inputElement.dataset.donorIndex);
+            const newDate = inputElement.value;
+
+            if (index >= 0 && index < allDonors.length) {
+                allDonors[index]['সর্বশেষ রক্তদানের তারিখ'] = newDate;
+                console.log(`Updated donor ${allDonors[index]['নাম']}'s last donation date to: ${newDate}`);
+                // In a real application, you'd save this data to a database here.
+            }
+        }
+
+        /**
+         * Handles the change event for the donation count input fields.
+         * Updates the donation count in the `allDonors` array.
+         * @param {HTMLInputElement} inputElement - The number input element that triggered the change.
+         */
+        function updateDonationCount(inputElement) {
+            const index = parseInt(inputElement.dataset.donorIndex);
+            const newCount = parseInt(inputElement.value);
+
+            if (index >= 0 && index < allDonors.length && !isNaN(newCount)) {
+                allDonors[index]['কতবার রক্ত দিয়েছে'] = newCount;
+                console.log(`Updated donor ${allDonors[index]['নাম']}'s donation count to: ${newCount}`);
+                // In a real application, you'd save this data to a database here.
+            }
+        }
+
+        /**
+         * Filters the table rows based on the selected blood group.
+         */
+        function filterTable() {
+            var dropdown = document.getElementById("bloodFilter");
+            var filter = dropdown.value;
+            var table = document.getElementById("dataTable");
+            var rows = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+                var cells = rows[i].getElementsByTagName("td");
+                // The blood group is still in the 5th column (index 4) based on the current header order
+                var bloodGroup = cells[4].textContent.trim() || cells[4].innerText.trim();
+
+                // Standardize blood group value for filtering (e.g., 'o+' to 'O+')
+                if (bloodGroup.toLowerCase() === 'o+') {
+                    bloodGroup = 'O+';
+                }
+
+                if (filter === "সব" || bloodGroup === filter) {
+                    rows[i].style.display = ""; // Show the row
+                } else {
+                    rows[i].style.display = "none"; // Hide the row
+                }
+            }
+        }
+
+        // Initialize the app when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Parse the CSV data from the JavaScript string
+            allDonors = parseCSV(csvData);
+            renderTable(allDonors); // Render the table initially with all data
+
+            // Add event listener to the filter dropdown
+            document.getElementById('bloodFilter').addEventListener('change', filterTable);
+        });
+    </script>
+</body>
+</html>
